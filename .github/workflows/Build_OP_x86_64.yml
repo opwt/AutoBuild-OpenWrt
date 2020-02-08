@@ -82,6 +82,7 @@ jobs:
     - name: Update & Install feeds
       working-directory: ./openwrt
       run: |
+        ./scripts/feeds clean
         ./scripts/feeds update -a
         rm -rf feeds/lienol/lienol/ipt2socks
         rm -rf feeds/lienol/lienol/shadowsocksr-libev
