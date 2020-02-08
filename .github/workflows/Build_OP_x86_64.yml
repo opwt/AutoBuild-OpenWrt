@@ -11,9 +11,9 @@ on:
   release:
     types: [published]
 
-  push:
-    branches: 
-      - master
+  #push:
+  #  branches: 
+  #    - master
 
   #schedule:
   #  - cron: 0 8 * * 5
@@ -65,15 +65,15 @@ jobs:
       
     - name: 自定义插件主题。
       run: |
-       #cd openwrt/package
-       #mkdir openwrt-packages
-       #cd openwrt-packages
-       #git clone https://github.com/0saga0/luci-theme-atmaterial
-       #git clone https://github.com/0saga0/luci-app-koolproxyR
-       #git clone https://github.com/0saga0/luci-theme-rosy
-       #git clone https://github.com/0saga0/luci-app-kcptun
-       #git clone https://github.com/0saga0/luci-app-clash
-       #git clone https://github.com/0saga0/luci-app-shadowsocks
+       cd openwrt/package
+       mkdir openwrt-packages
+       cd openwrt-packages
+       git clone https://github.com/0saga0/luci-theme-atmaterial
+       git clone https://github.com/0saga0/luci-app-koolproxyR
+       git clone https://github.com/0saga0/luci-theme-rosy
+       git clone https://github.com/0saga0/luci-app-kcptun
+       git clone https://github.com/0saga0/luci-app-clash
+       git clone https://github.com/0saga0/luci-app-shadowsocks
 
 
     - name: Update & Install feeds
