@@ -134,13 +134,14 @@ jobs:
     #    path: openwrt/bin
     - name: Zip Files
       run: |
-          gzip openwrt/bin/targets/x86/64/*.img
+          #gzip openwrt/bin/targets/x86/64/*.img
+          zip -r openwrt-out.zip ./openwrt/bin/
     - name: Assemble Artifact
       id: assemble_artifact
       run: |
         rm -rf ./artifact/
         mkdir -p ./artifact/
-        mv openwrt/bin/targets/x86/64/*.img* ./artifact/
+        mv openwrt-out.zip  ./artifact/
         cd openwrt
         make clean
         cd ../
