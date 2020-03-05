@@ -149,7 +149,7 @@ jobs:
         mv  openwrt.zip   ./artifact/
         #cp friendlywrt-rk3328/friendlywrt/.config ./artifact/
         zip -r artifact.zip ./artifact/
-        release_tag="Lede-$(date +%Y-%m-%d)"
+        release_tag="Lede-$(date +%Y-%m-%d-%H%M%S)"
         echo "##[set-output name=release_tag;]$release_tag"
     - name: Create Release
       id: create_release
