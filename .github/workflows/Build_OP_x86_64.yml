@@ -124,7 +124,7 @@ jobs:
       working-directory: ./openwrt
       run: |
         echo -e "$(nproc) thread build."
-        #make -j$(nproc) V=s
+        make -j$(nproc) V=s
         #make -j1 V=s
 
     #- name : Upload artifact
@@ -135,16 +135,16 @@ jobs:
     - name: Zip Files
       run: |
           #gzip openwrt/bin/targets/x86/64/*.img
-          #zip -r openwrt-out.zip ./openwrt/bin/
+          zip -r openwrt-out.zip ./openwrt/bin/
     - name: Assemble Artifact
       id: assemble_artifact
       run: |
         rm -rf ./artifact/
         mkdir -p ./artifact/
-        #mv openwrt-out.zip  ./artifact/
-        #cd openwrt
-        #make clean
-        #cd ../
+        mv openwrt-out.zip  ./artifact/
+        cd openwrt
+        make clean
+        cd ../
         zip -r openwrt.zip ./openwrt/
         mv  openwrt.zip   ./artifact/
         #cp friendlywrt-rk3328/friendlywrt/.config ./artifact/
