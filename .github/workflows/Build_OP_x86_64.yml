@@ -120,19 +120,11 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: Build firmware
-      working-directory: ./openwrt
-      run: |
-        echo -e "$(nproc) thread build."
-        make -j$(nproc) V=s
-        #make -j1 V=s
-
     - name: Zip Files
       run: |
           #gzip openwrt/bin/targets/x86/64/*.img
           #zip -r openwrt-out.zip ./openwrt/bin/
-          #zip -r openwrt.zip ./openwrt/
-          zip -r openwrt.zip ./openwrt/bin/
+          zip -r openwrt.zip ./openwrt/
     - name: Assemble Artifact
       id: assemble_artifact
       run: |
@@ -169,9 +161,16 @@ jobs:
         asset_path: ./artifact.zip
         asset_name: ${{ steps.assemble_artifact.outputs.release_tag }}.zip
         asset_content_type: application/zip
-            
-    #- name : Upload artifact
-    #  uses: actions/upload-artifact@master
-    #  with:
-    #    name: OpenWrt
-    #    path: openwrt/bin
+
+    - name: Build firmware
+      working-directory: ./openwrt
+      run: |
+        echo -e "$(nproc) thread build."
+        make -j$(nproc) V=s
+        #make -j1 V=s
+        
+    - name : Upload artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: OpenWrt
+        path: openwrt/bin
