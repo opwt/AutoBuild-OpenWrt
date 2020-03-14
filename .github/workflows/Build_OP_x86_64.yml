@@ -77,9 +77,9 @@ jobs:
        git clone https://github.com/0saga0/luci-app-kcptun
        git clone https://github.com/0saga0/luci-app-clash
        git clone https://github.com/0saga0/luci-app-shadowsocks
-       git clone https://github.com/0saga0/OpenClash.git
-       cp -rfv   OpenClash/luci-app-openclash  ./
-       rm -rfv   OpenClash
+       #git clone https://github.com/0saga0/OpenClash.git
+       #cp -rfv   OpenClash/luci-app-openclash  ./
+       #rm -rfv   OpenClash
 
 
     - name: Update & Install feeds
