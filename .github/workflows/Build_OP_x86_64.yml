@@ -73,10 +73,10 @@ jobs:
         FEEDS_CONFIG_FILE: 'feeds.conf.default'
       run: |
        [ -e $FEEDS_CONFIG_FILE ] && mv $FEEDS_CONFIG_FILE openwrt/
-       cd openwrt/package
-       mkdir openwrt-packages
-       cd openwrt-packages
-       git clone https://github.com/opwt/luci-theme-atmaterial
+       #cd openwrt/package
+       #mkdir openwrt-packages
+       #cd openwrt-packages
+       #git clone https://github.com/opwt/luci-theme-atmaterial
        #git clone https://github.com/opwt/luci-app-koolproxyR
        #git clone https://github.com/opwt/luci-theme-rosy
        #git clone https://github.com/opwt/luci-app-kcptun
