@@ -4,4 +4,4 @@ src-git routing https://git.openwrt.org/feed/routing.git
 src-git telephony https://git.openwrt.org/feed/telephony.git
 src-git helloworld https://github.com/opwt/helloworld
 src-git kenzo https://github.com/opwt/openwrt-packages
-src-git small https://github.com/opwt/small
+#src-git small https://github.com/opwt/small
