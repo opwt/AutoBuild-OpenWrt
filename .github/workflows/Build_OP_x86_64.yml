@@ -21,11 +21,21 @@ on:
   #watch:
   #  types: [started]
 
+env:
+  TZ: Asia/Shanghai
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: Ubuntu-22.04
+    #runs-on: ubuntu-latest
     #runs-on: ubuntu-18.04
-
+    
+    name: Build ${{matrix.target}}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [Lean]
+        
     steps:
     - name: Checkout
       uses: actions/checkout@master
@@ -34,30 +44,24 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        set +e
-        docker rmi `docker images -q`
-        echo "Deleting files, please wait ..."
-        sudo rm -rf \
-          /usr/share/dotnet \
-          /etc/mysql \
-          /etc/php
-        sudo -E apt-get -y purge \
-          azure-cli \
-          ghc* \
-          zulu* \
-          hhvm \
-          llvm* \
-          firefox \
-          google* \
-          dotnet* \
-          powershell \
-          openjdk* \
-          mysql* \
-          php*
-        sudo -E apt-get update
-        sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
-        sudo -E apt-get -y autoremove --purge
-        sudo -E apt-get clean
+        ( sudo -E apt-get -qq update
+        sudo -E apt-get -qq install build-essential clang flex g++ gawk gcc-multilib gettext \
+        git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev swig libpython3-dev aria2 jq subversion qemu-utils ccache rename libelf-dev
+        sudo -E apt-get -qq purge azure-cli ghc* zulu* hhvm llvm* firefox powershell openjdk* dotnet* google* mysql* php* android*
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean ) &
+        sudo timedatectl set-timezone "$TZ"
+
+    - name: 设置当前的日期
+      id: date
+      run: |
+        echo "date=$(date +'%Y.%m.%d-%H%M')" >> $GITHUB_ENV
+        echo "date2=$(date +'%m/%d %Y')" >> $GITHUB_ENV
+        echo "date3=$(date +'%m.%d')" >> $GITHUB_ENV
+        echo "date4=$(date +'%m.%d.%H')" >> $GITHUB_ENV
+        VERSION="$(echo "${{github.event.action}}" | grep -Eo " [0-9.]+" | sed -e 's/ //')" || true
+        [ "$VERSION" ] && echo "VERSION=$VERSION" >> $GITHUB_ENV || echo "VERSION=$(date +'%m.%d')" >> $GITHUB_ENV
 
     - name: Clone source code
       env: 
@@ -65,66 +69,29 @@ jobs:
         REPO_BRANCH: master
       run: |
        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-       #cd openwrt
-       #sed -i '5s/#//' feeds.conf.default
-      
-    - name: 自定义插件主题。
-      env:
-        FEEDS_CONFIG_FILE: 'feeds.conf.default'
-      run: |
-       [ -e $FEEDS_CONFIG_FILE ] && mv $FEEDS_CONFIG_FILE openwrt/
-       cd openwrt/package
-       mkdir openwrt-packages
-       cd openwrt-packages
-       git clone https://github.com/opwt/luci-theme-atmaterial
-       #git clone https://github.com/opwt/luci-app-koolproxyR
-       #git clone https://github.com/opwt/luci-theme-rosy
-       #git clone https://github.com/opwt/luci-app-kcptun
-       git clone https://github.com/linuxerw/luci-app-clash.git
-       #git clone https://github.com/opwt/luci-app-clash
-       #cd luci-app-clash
-       #git checkout -b openwrt-use01-ok origin/openwrt-use01-ok
-       #cd ../
-       #git clone https://github.com/opwt/luci-app-shadowsocks
-       #git clone https://github.com/opwt/OpenClash.git
-       #cp -rfv   OpenClash/luci-app-openclash  ./
-       #rm -rfv   OpenClash
-
+       cd openwrt
+       sed -i '$a src-git smpackage https://github.com/opwt/small-package' feeds.conf.default
 
     - name: Update & Install feeds
       working-directory: ./openwrt
       run: |
-        ./scripts/feeds clean
         ./scripts/feeds update -a
-        #rm -rf feeds/lienol/lienol/ipt2socks
-        #rm -rf feeds/lienol/lienol/shadowsocksr-libev
-        #rm -rf feeds/lienol/lienol/pdnsd-alt
-        #rm -rf feeds/lienol/package/verysync
-        #rm -rf feeds/lienol/lienol/luci-app-verysync
-        #rm -rf package/lean/kcptun
-        #rm -rf package/lean/trojan
-        #rm -rf package/lean/v2ray
-        #rm -rf package/lean/luci-app-kodexplorer
-        #rm -rf package/lean/luci-app-pppoe-relay
-        #rm -rf package/lean/luci-app-pptp-server
-        #rm -rf package/lean/luci-app-v2ray-server
-        ./scripts/feeds install -a       
-        ./scripts/feeds install -a
+        ./scripts/feeds install -a    
 
-    #- name: Import external feeds
-    #  working-directory: ./openwrt
-    #  run: |
-    #    git clone https://github.com/Lienol/openwrt-package package/lienol
-    #    git clone "your_github_link" package/"your_folder_name"      
-
-    - name: Configuration Customization - Build_x86_64
+    - name: 自定义配置 ${{matrix.target}}
       env:
-        CONFIG_FILE: 'x86_64.config'
+        CONFIG_FILE: '${{matrix.target}}.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x ./customize.sh && ./customize.sh
-        cd openwrt && make defconfig
-        
+        cd openwrt
+        cp -f feeds/smpackage/diy/default-settings package/lean/default-settings/files/zzz-default-settings
+        sed -i 's/v$date1/Nov/g' package/lean/default-settings/files/zzz-default-settings
+        cp -f feeds/smpackage/diy/banner package/base-files/files/etc/banner
+        sed -i 's/%D %V, %C/openwrt Nov by kenzo/g' package/base-files/files/etc/banner
+        cp -f feeds/smpackage/diy/index_x86.htm package/lean/autocore/files/x86/index.htm
+        cp -f feeds/smpackage/diy/${{matrix.target}}.config .config && make defconfig
+       
     - name: Download package
       working-directory: ./openwrt
       run: |
@@ -177,9 +144,9 @@ jobs:
     - name: Build firmware
       working-directory: ./openwrt
       run: |
-        echo -e "$(nproc) thread build."
-        #make -j$(nproc) V=s
-        make -j1 V=s
+        echo -e "$(($(nproc)+1)) thread compile"
+        make -j$(($(nproc)+1)) || make -j1 V=s
+        echo "::set-output name=status::success"
         
     - name : Upload artifact
       uses: actions/upload-artifact@master
