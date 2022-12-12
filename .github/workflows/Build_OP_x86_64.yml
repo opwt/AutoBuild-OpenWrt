@@ -1,6 +1,6 @@
 #=================================================
 # Description: Build OpenWrt using GitHub Actions
-# Lisence: MIT 
+# Lisence: MIT
 # Author: 0saga0ground
 # Youtube Channel: https://goo.gl/fvkdwm 
 #=================================================
@@ -38,7 +38,7 @@ jobs:
         
     steps:
     - name: Checkout
-      uses: actions/checkout@master
+      uses: actions/checkout@main
 
     - name: Initialization environment
       env:
