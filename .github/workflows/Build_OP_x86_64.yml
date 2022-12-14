@@ -72,7 +72,8 @@ jobs:
        cd openwrt
        sed -i '$a src-git smpackage https://github.com/opwt/small-package' feeds.conf.default
        git clone https://github.com/kenzok8/openwrt-packages.git package/openwrt-packages
-       git clone https://github.com/opwt/luci-theme-atmaterial package/openwrt-packages 
+       cd package/openwrt-packages
+       git clone https://github.com/opwt/luci-theme-atmaterial
 
     - name: Update & Install feeds
       working-directory: ./openwrt
