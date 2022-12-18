@@ -71,9 +71,9 @@ jobs:
        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
        cd openwrt
        sed -i '$a src-git smpackage https://github.com/opwt/small-package' feeds.conf.default
-       git clone https://github.com/kenzok8/openwrt-packages.git package/openwrt-packages
-       cd package/openwrt-packages
-       git clone https://github.com/opwt/luci-theme-atmaterial
+       sed -i '$a src-git kenzo https://github.com/opwt/openwrt-packages' feeds.conf.default
+       sed -i '$a src-git small https://github.com/opwt/small' feeds.conf.default
+       git clone https://github.com/opwt/luci-theme-atmaterial package/openwrt-packages
 
     - name: Update & Install feeds
       working-directory: ./openwrt
@@ -88,13 +88,14 @@ jobs:
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         chmod +x ./customize.sh && ./customize.sh
         cd openwrt
+        sed -i 's/192.168.1.1/10.10.10.9/g' package/base-files/files/bin/config_generate
         cp -f feeds/smpackage/diy/default-settings package/lean/default-settings/files/zzz-default-settings
         sed -i 's/v$date1/Nov/g' package/lean/default-settings/files/zzz-default-settings
         cp -f feeds/smpackage/diy/banner package/base-files/files/etc/banner
         sed -i 's/%D %V, %C/openwrt Nov by kenzo/g' package/base-files/files/etc/banner
         cp -f feeds/smpackage/diy/index_x86.htm package/lean/autocore/files/x86/index.htm
         cp -f feeds/smpackage/diy/${{matrix.target}}.config .config && make defconfig
-        sed -i 's/192.168.1.1/10.10.10.9/g' package/base-files/files/bin/config_generate
+        
        
     - name: Download package
       working-directory: ./openwrt
